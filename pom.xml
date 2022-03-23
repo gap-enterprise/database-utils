@@ -63,7 +63,7 @@ SOFTWARE.
     <url>http://github.com/gap-enterprise/database-utils/tree/master</url>
   </scm>
   <properties>
-    <jooq.version>3.14.15</jooq.version>
+    <jooq.version>3.16.5</jooq.version>
   </properties>
   <dependencies>
     <dependency>
