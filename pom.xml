@@ -66,6 +66,12 @@ SOFTWARE.
     <jooq.version>3.14.15</jooq.version>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.8.2</version>
+      <scope>test</scope>
+    </dependency>
     <!--
       Use 1.4.x because there is an error on 2.x.x.
       See https://stackoverflow.com/questions/70696570/h2-database-engine-version-upgrade-from-1-4-182-to-2-0-x-fails-with-caused-by-o
@@ -75,6 +81,12 @@ SOFTWARE.
       <artifactId>h2</artifactId>
       <version>1.4.200</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.liquibase</groupId>
@@ -108,6 +120,14 @@ SOFTWARE.
       <groupId>com.baudoliver7</groupId>
       <artifactId>lightweight-db</artifactId>
       <version>0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
     </dependency>
   </dependencies>
   <build>
@@ -159,6 +179,11 @@ SOFTWARE.
             <groupId>com.qulice</groupId>
             <artifactId>qulice-maven-plugin</artifactId>
             <version>0.19.4</version>
+            <configuration>
+              <excludes>
+                <exclude>duplicatefinder:.*</exclude>
+              </excludes>
+            </configuration>
           </plugin>
         </plugins>
       </build>
