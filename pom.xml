@@ -24,7 +24,7 @@ SOFTWARE.
   </parent>
   <groupId>io.surati.gap</groupId>
   <artifactId>database-utils</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.3</version>
   <description>Utilities for database</description>
   <url>https://github.com/gap-enterprise/database-utils</url>
   <inceptionYear>2022</inceptionYear>
