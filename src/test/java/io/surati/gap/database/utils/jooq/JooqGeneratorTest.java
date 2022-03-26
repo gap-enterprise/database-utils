@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsIterableContaining;
 import org.junit.jupiter.api.Test;
@@ -32,13 +33,14 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * @since 0.1
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 final class JooqGeneratorTest {
 
     @Test
-    void start(@TempDir final Path temp) throws Exception {
+    void generatesSimple(@TempDir final Path temp) throws Exception {
         final String pkg = "generated";
         new JooqGenerator(
-            "liquibase/db.changelog-master.xml", pkg, ".*",
+            "liquibase/db.changelog-master.xml", pkg, "ad_(.*)",
             temp.toString()
         ).start();
         MatcherAssert.assertThat(
@@ -46,8 +48,23 @@ final class JooqGeneratorTest {
                 temp.resolve(pkg).resolve("tables").toFile()
             ),
             new IsIterableContaining<>(
-                new IsEqual<>("Person.java")
+                new IsEqual<>("AdPerson.java")
             )
+        );
+    }
+
+    @Test
+    void generatesNestedChangeLogs(@TempDir final Path temp) throws Exception {
+        final String pkg = "generated";
+        new JooqGenerator(
+            "liquibase/db2.split-changelog-master.xml", pkg, "ad_(.*)|log_(.*)",
+            temp.toString()
+        ).start();
+        MatcherAssert.assertThat(
+            JooqGeneratorTest.listFiles(
+                temp.resolve(pkg).resolve("tables").toFile()
+            ),
+            Matchers.hasItems("LogEvent.java", "AdPerson.java")
         );
     }
 
