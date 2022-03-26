@@ -18,6 +18,9 @@ package io.surati.gap.database.utils.jooq;
 
 import com.lightweight.db.EmbeddedPostgreSQLDataSource;
 import com.lightweight.db.LiquibaseDataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import javax.sql.DataSource;
 import org.jooq.codegen.GenerationTool;
 import org.jooq.meta.jaxb.Configuration;
 import org.jooq.meta.jaxb.Database;
@@ -33,6 +36,11 @@ import org.jooq.meta.jaxb.Target;
 public final class JooqGenerator {
 
     /**
+     * Data source.
+     */
+    private final DataSource src;
+
+    /**
      * Package where to generate classes.
      * <p>For example {@code io.surati.gap.admin.jooq.generated}</p>
      */
@@ -40,7 +48,10 @@ public final class JooqGenerator {
 
     /**
      * Tables to include.
-     * <p>To include all tables, write: .*</p>
+     * <p>
+     *     To include all public tables, write: .*
+     *     To include all public tables prefixed with ad, write: ad_(.*)
+     * </p>
      */
     private final String inclusions;
 
@@ -58,15 +69,6 @@ public final class JooqGenerator {
      * Ctor.
      * @param changelog Liquibase change log filename
      * @param pkg Package where to generate classes
-     */
-    public JooqGenerator(final String changelog, final String pkg) {
-        this(changelog, pkg, ".*", "src/main/java");
-    }
-
-    /**
-     * Ctor.
-     * @param changelog Liquibase change log filename
-     * @param pkg Package where to generate classes
      * @param inclusions Database tables to include
      * @param target Target directory
      * @checkstyle ParameterNumberCheck (4 lines)
@@ -75,6 +77,23 @@ public final class JooqGenerator {
         final String changelog, final String pkg,
         final String inclusions, final String target
     ) {
+        this(new EmbeddedPostgreSQLDataSource("db_test"), changelog, pkg, inclusions, target);
+    }
+
+    /**
+     * Ctor.
+     * @param src Data source
+     * @param changelog Liquibase change log filename
+     * @param pkg Package where to generate classes
+     * @param inclusions Database tables to include
+     * @param target Target directory
+     * @checkstyle ParameterNumberCheck (4 lines)
+     */
+    public JooqGenerator(
+        final DataSource src, final String changelog, final String pkg,
+        final String inclusions, final String target
+    ) {
+        this.src = src;
         this.changelog = changelog;
         this.pkg = pkg;
         this.inclusions = inclusions;
@@ -88,20 +107,25 @@ public final class JooqGenerator {
      */
     public void start() throws Exception {
         new LiquibaseDataSource(
-            new EmbeddedPostgreSQLDataSource("db_test"),
+            this.src,
             this.changelog
         ).getConnection().close();
+        final String driver;
+        final String url;
+        try (Connection conn = this.src.getConnection()) {
+            url = conn.getMetaData().getURL();
+            driver = DriverManager.getDriver(url).getClass().getName();
+        }
         GenerationTool.generate(
             new Configuration()
                 .withJdbc(
                     new Jdbc()
-                        .withDriver("org.h2.Driver")
-                        .withUrl("jdbc:h2:~/db_test")
+                        .withDriver(driver)
+                        .withUrl(url)
                 ).withGenerator(
                     new Generator()
                         .withDatabase(
                             new Database()
-                                .withName("org.jooq.meta.h2.H2Database")
                                 .withIncludes(this.inclusions)
                                 .withExcludes("databasechangelog|databasechangeloglock")
                                 .withInputSchema("public")
