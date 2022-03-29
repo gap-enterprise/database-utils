@@ -19,6 +19,7 @@ package io.surati.gap.database.utils.extensions;
 import com.lightweight.db.EmbeddedOracleDataSource;
 import com.lightweight.db.EmbeddedPostgreSQLDataSource;
 import com.lightweight.db.LiquibaseDataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -63,18 +64,22 @@ public abstract class AbstractDataSourceExtension
     public final Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
         final ExtensionContext context
     ) {
-        return new LinkedList<>(
-            Arrays.asList(
-                new LiquibaseDataSource(
-                    new EmbeddedPostgreSQLDataSource(),
-                    this.changelog
-                ),
-                new LiquibaseDataSource(
-                    new EmbeddedOracleDataSource(),
-                    this.changelog
+        try {
+            return new LinkedList<>(
+                Arrays.asList(
+                    new LiquibaseDataSource(
+                        new EmbeddedPostgreSQLDataSource(),
+                        this.changelog
+                    ),
+                    new LiquibaseDataSource(
+                        new EmbeddedOracleDataSource(),
+                        this.changelog
+                    )
                 )
-            )
-        ).stream().map(DataSourceContext::new);
+            ).stream().map(DataSourceContext::new);
+        } catch (final SQLException exe) {
+            throw new IllegalStateException(exe);
+        }
     }
 
     /**
