@@ -1,5 +1,5 @@
 ---
-name: Maven Build
+name: Qulice
 "on":
   push:
     branches:
@@ -12,8 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        java: [1.8, 11, 17]
+        os: [ubuntu-latest]
+        java: [1.8]
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -27,4 +27,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-jdk-${{ matrix.java }}-mvn-
       - name: Build it with Maven
-        run: mvn clean verify -B
+        run: mvn clean verify -B -Pqulice

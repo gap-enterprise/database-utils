@@ -14,19 +14,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.surati.gap.database.utils.extensions;
 
 /**
- * Sample of a data source extension.
+ * Global helpers package.
  *
- * @since 0.1
+ * @since 0.3
  */
-public final class SampleDataSourceExtension extends AbstractDataSourceExtension {
+package io.surati.gap.database.utils;
 
-    /**
-     * Ctor.
-     */
-    public SampleDataSourceExtension() {
-        super("liquibase/db.changelog-master.xml");
-    }
-}
