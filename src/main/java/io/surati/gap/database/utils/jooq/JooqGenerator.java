@@ -16,16 +16,11 @@
  */
 package io.surati.gap.database.utils.jooq;
 
-import com.lightweight.db.EmbeddedPostgreSQLDataSource;
-import com.lightweight.db.LiquibaseDataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import javax.sql.DataSource;
 import org.jooq.codegen.GenerationTool;
 import org.jooq.meta.jaxb.Configuration;
 import org.jooq.meta.jaxb.Database;
 import org.jooq.meta.jaxb.Generator;
-import org.jooq.meta.jaxb.Jdbc;
 import org.jooq.meta.jaxb.Target;
 
 /**
@@ -56,45 +51,23 @@ public final class JooqGenerator {
     private final String inclusions;
 
     /**
-     * Liquibase changelog filename.
-     */
-    private final String changelog;
-
-    /**
      * Target directory.
      */
     private final String target;
 
     /**
      * Ctor.
-     * @param changelog Liquibase change log filename
-     * @param pkg Package where to generate classes
-     * @param inclusions Database tables to include
-     * @param target Target directory
-     * @checkstyle ParameterNumberCheck (4 lines)
-     */
-    public JooqGenerator(
-        final String changelog, final String pkg,
-        final String inclusions, final String target
-    ) {
-        this(new EmbeddedPostgreSQLDataSource("db_test"), changelog, pkg, inclusions, target);
-    }
-
-    /**
-     * Ctor.
      * @param src Data source
-     * @param changelog Liquibase change log filename
      * @param pkg Package where to generate classes
      * @param inclusions Database tables to include
      * @param target Target directory
      * @checkstyle ParameterNumberCheck (4 lines)
      */
     public JooqGenerator(
-        final DataSource src, final String changelog, final String pkg,
+        final DataSource src, final String pkg,
         final String inclusions, final String target
     ) {
         this.src = src;
-        this.changelog = changelog;
         this.pkg = pkg;
         this.inclusions = inclusions;
         this.target = target;
@@ -106,23 +79,11 @@ public final class JooqGenerator {
      * @throws Exception If fails
      */
     public void start() throws Exception {
-        new LiquibaseDataSource(
-            this.src,
-            this.changelog
-        ).getConnection().close();
-        final String driver;
-        final String url;
-        try (Connection conn = this.src.getConnection()) {
-            url = conn.getMetaData().getURL();
-            driver = DriverManager.getDriver(url).getClass().getName();
-        }
-        GenerationTool.generate(
+        final GenerationTool tool = new GenerationTool();
+        tool.setDataSource(this.src);
+        tool.run(
             new Configuration()
-                .withJdbc(
-                    new Jdbc()
-                        .withDriver(driver)
-                        .withUrl(url)
-                ).withGenerator(
+                .withGenerator(
                     new Generator()
                         .withDatabase(
                             new Database()

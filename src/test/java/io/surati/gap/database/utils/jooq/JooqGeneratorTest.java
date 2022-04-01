@@ -16,6 +16,8 @@
  */
 package io.surati.gap.database.utils.jooq;
 
+import com.baudoliver7.easy.liquibase4j.gen.LiquibaseDataSource;
+import com.lightweight.db.EmbeddedPostgreSQLDataSource;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Set;
@@ -40,8 +42,11 @@ final class JooqGeneratorTest {
     void generatesSimple(@TempDir final Path temp) throws Exception {
         final String pkg = "generated";
         new JooqGenerator(
-            "liquibase/db.changelog-master.xml", pkg, "ad_(.*)",
-            temp.toString()
+            new LiquibaseDataSource(
+                new EmbeddedPostgreSQLDataSource(),
+                "liquibase/db.changelog-master.xml"
+            ),
+            pkg, "ad_(.*)", temp.toString()
         ).start();
         MatcherAssert.assertThat(
             JooqGeneratorTest.listFiles(
@@ -57,8 +62,11 @@ final class JooqGeneratorTest {
     void generatesNestedChangeLogs(@TempDir final Path temp) throws Exception {
         final String pkg = "generated";
         new JooqGenerator(
-            "liquibase/db2.split-changelog-master.xml", pkg, "ad_(.*)|log_(.*)",
-            temp.toString()
+            new LiquibaseDataSource(
+                new EmbeddedPostgreSQLDataSource(),
+                "liquibase/db2.split-changelog-master.xml"
+            ),
+            pkg, "ad_(.*)|log_(.*)", temp.toString()
         ).start();
         MatcherAssert.assertThat(
             JooqGeneratorTest.listFiles(
