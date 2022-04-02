@@ -16,7 +16,6 @@
  */
 package io.surati.gap.database.utils.extensions;
 
-import com.baudoliver7.easy.liquibase4j.gen.UncheckedLiquibaseDataSource;
 import com.baudoliver7.jdbc.toolset.lockable.LocalLockedDataSource;
 import com.baudoliver7.jdbc.toolset.wrapper.DataSourceWrap;
 import java.sql.Connection;
@@ -39,14 +38,11 @@ public final class DatabaseSetupExtension extends DataSourceWrap implements Afte
     /**
      * Ctor.
      * @param src Data source
-     * @param changelog Change log path
      */
-    public DatabaseSetupExtension(final DataSource src, final String changelog) {
+    public DatabaseSetupExtension(final DataSource src) {
         super(
             new LocalLockedDataSource(
-                new UncheckedLiquibaseDataSource(
-                    src, changelog
-                ),
+                src,
                 DatabaseSetupExtension.CONNECTION
             )
         );
