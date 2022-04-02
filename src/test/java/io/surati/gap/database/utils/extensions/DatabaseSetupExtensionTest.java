@@ -16,9 +16,10 @@
  */
 package io.surati.gap.database.utils.extensions;
 
+import com.baudoliver7.easy.liquibase4j.gen.UncheckedLiquibaseDataSource;
 import com.jcabi.jdbc.JdbcSession;
 import com.jcabi.jdbc.Outcome;
-import com.lightweight.db.EmbeddedPostgreSQLDataSource;
+import com.lightweight.db.EmbeddedH2DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.hamcrest.MatcherAssert;
@@ -46,8 +47,10 @@ final class DatabaseSetupExtensionTest {
      */
     @RegisterExtension
     final DatabaseSetupExtension src = new DatabaseSetupExtension(
-        new EmbeddedPostgreSQLDataSource(),
-        "liquibase/db.changelog-master.xml"
+        new UncheckedLiquibaseDataSource(
+            new EmbeddedH2DataSource(),
+            "liquibase/db.changelog-master.xml"
+        )
     );
 
     /**
